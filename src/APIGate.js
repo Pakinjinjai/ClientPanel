@@ -10,7 +10,7 @@ const REGISTER_API = "/user-register";
 const UPLOADIMAGE_API = "/upload-images-me";
 
 /** 'Authorization': `Bearer Include accessToken in the header'Content-Type': 'application/json' **/ 
-const GETIMAGE_API = "/get-images"; //อย่าลืม / {userId}
+const GETIMAGE_API = "/get-me-dataHealth"; 
 
 /** 'Authorization': `Bearer Include accessToken in the header'Content-Type': 'application/json' **/ 
 const GETALLIMAGE_MEAPI = '/get-all-images-me'
