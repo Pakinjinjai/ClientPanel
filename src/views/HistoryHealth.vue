@@ -18,11 +18,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(row, index) in paginatedData" :key="index" class="text-center">
-                        <td class="px-2 py-3 border border-black">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-                        <td class="px-2 py-3 border border-black">{{ row.date }}</td>
+                    <tr v-for="(item, index) in paginatedData" :key="index" class="text-center">
+                        <td class="px-2 py-3 border border-black">
+                            {{ (currentPage - 1) * itemsPerPage + index + 1 }}
+                        </td>
+                        <td class="px-2 py-3 border border-black">
+                            {{ formatDate(item.updatedAt) }}
+                        </td>
                         <td class="border border-black">
-                            <button @click="showInfoModal(row)" class="border border-black" type="button">
+                            <button @click="showInfoModal(item)" class="border border-black" type="button">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                     stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -38,167 +42,71 @@
             <div class="bg-white rounded-lg p-6 w-auto h-auto">
                 <div class="flex justify-between items-center">
                     <h2 class="text-4xl font-bold text-gray-800">รูปภาพที่ถูกอัพโหลด</h2>
-                    <button @click="hideInfoModal" class="text-gray-600 hover:text-gray-800 focus:outline-none hover:bg-gray-200">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-         class="w-6 h-6">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-        </path>
-    </svg>
-</button>
-
-
+                    <button @click="hideInfoModal"
+                        class="text-gray-600 hover:text-gray-800 focus:outline-none hover:bg-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
                 <div class="mt-4 grid grid-cols-2 gap-4">
-                    <div>
+                    <div v-if="selectedItem">
                         <p class="text-xl">
                             1. ความดันของเลือดสูงสุดขณะหัวใจห้องล่างบีบตัว
                         </p>
-                        <img src="../assets/test.jpeg" alt="Image 1" class="w-full h-auto object-cover rounded-lg" />
+                        <img :src="'data:image/jpeg;base64,' + selectedItem.oxiMeterImage" alt="Image 1"
+                            class="mx-16 w-64 h-64 object-cover rounded-lg" loading="lazy" />
                         <br />
-                        <p class="text-xl border rounded p-4 bg-gray-100">1. 123</p>
+                        <p class="text-xl border rounded p-4 bg-gray-100">
+                            1. {{ selectedItem.bloodPressureMeterDescription }}
+                        </p>
                     </div>
-                    <div>
+                    <div v-if="selectedItem">
                         <p class="text-xl">
                             2. ความดันเลือดที่ต่ำสุดขณะหัวใจห้องล่างคลายตัว
                         </p>
-                        <img src="../assets/test.jpeg" alt="Image 2" class="w-full h-auto object-cover rounded-lg" />
+                        <img :src="'data:image/jpeg;base64,' + selectedItem.bloodPressureMeterImage
+                        " alt="Image 2" class="mx-16 px-auto w-64 h-64 object-cover rounded-lg" loading="lazy" />
                         <br />
-                        <p class="text-xl border rounded p-4 bg-gray-100">2. 123</p>
-                    </div>
-                    <div>
-                        <p class="text-xl">3. ชีพจร</p>
-                        <img src="../assets/test.jpeg" alt="Image 3" class="w-full h-auto object-cover rounded-lg" />
-                        <br />
-                        <p class="text-xl border rounded p-4 bg-gray-100">3. 123</p>
-                    </div>
-                    <div>
-                        <p class="text-xl">4. ความเข้มข้นของออกซิเจนในเลือด</p>
-                        <img src="../assets/test.jpeg" alt="Image 4" class="w-full h-auto object-cover rounded-lg" />
-                        <br />
-                        <p class="text-xl border rounded p-4 bg-gray-100">. 123</p>
+                        <p class="text-xl border rounded p-4 bg-gray-100">
+                            2. {{ selectedItem.bloodPressureMeterDescription }}
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Pagination Buttons -->
-        <div>
-    <!-- Pagination Buttons -->
-    <div class="flex justify-between p-8">
-        <button @click="previousPage" :disabled="currentPage === 1">
-            Previous Page
-        </button>
-        <span>Page {{ currentPage }} of {{ pageCount }}</span>
-        <button @click="nextPage" :disabled="currentPage >= pageCount">
-            Next Page
-        </button>
-    </div>
-</div>
-
+        <div class="flex justify-between p-8">
+            <button @click="previousPage" :disabled="currentPage === 1">
+                Previous Page
+            </button>
+            <span>Page {{ currentPage }} of {{ pageCount }}</span>
+            <button @click="nextPage" :disabled="currentPage >= pageCount">
+                Next Page
+            </button>
+        </div>
     </main>
 </template>
 
 <script>
+import { baseURL, GETALLIMAGE_MEAPI } from "../APIGate";
+import axios from "axios";
+import moment from "moment";
+
 export default {
-    name: "HistoryHealth",
     data() {
         return {
-            tableData: [
-                { date: "25/06/2567" },
-                { date: "26/06/2567" },
-                { date: "27/06/2567" },
-                { date: "28/06/2567" },
-                { date: "29/06/2567" },
-                { date: "30/06/2567" },
-                { date: "31/06/2567" },
-                { date: "32/06/2567" },
-                { date: "33/06/2567" },
-                { date: "34/06/2567" },
-                { date: "25/06/2567" },
-                { date: "26/06/2567" },
-                { date: "27/06/2567" },
-                { date: "28/06/2567" },
-                { date: "29/06/2567" },
-                { date: "30/06/2567" },
-                { date: "31/06/2567" },
-                { date: "32/06/2567" },
-                { date: "33/06/2567" },
-                { date: "34/06/2567" },
-                { date: "25/06/2567" },
-                { date: "26/06/2567" },
-                { date: "27/06/2567" },
-                { date: "28/06/2567" },
-                { date: "29/06/2567" },
-                { date: "30/06/2567" },
-                { date: "31/06/2567" },
-                { date: "32/06/2567" },
-                { date: "33/06/2567" },
-                { date: "34/06/2567" },
-                { date: "25/06/2567" },
-                { date: "26/06/2567" },
-                { date: "27/06/2567" },
-                { date: "28/06/2567" },
-                { date: "29/06/2567" },
-                { date: "30/06/2567" },
-                { date: "31/06/2567" },
-                { date: "32/06/2567" },
-                { date: "33/06/2567" },
-                { date: "34/06/2567" },
-                { date: "25/06/2567" },
-                { date: "26/06/2567" },
-                { date: "27/06/2567" },
-                { date: "28/06/2567" },
-                { date: "29/06/2567" },
-                { date: "30/06/2567" },
-                { date: "31/06/2567" },
-                { date: "32/06/2567" },
-                { date: "33/06/2567" },
-                { date: "34/06/2567" },
-                { date: "25/06/2567" },
-                { date: "26/06/2567" },
-                { date: "27/06/2567" },
-                { date: "28/06/2567" },
-                { date: "29/06/2567" },
-                { date: "30/06/2567" },
-                { date: "31/06/2567" },
-                { date: "32/06/2567" },
-                { date: "33/06/2567" },
-                { date: "34/06/2567" },
-                { date: "25/06/2567" },
-                { date: "26/06/2567" },
-                { date: "27/06/2567" },
-                { date: "28/06/2567" },
-                { date: "29/06/2567" },
-                { date: "30/06/2567" },
-                { date: "31/06/2567" },
-                { date: "32/06/2567" },
-                { date: "33/06/2567" },
-                { date: "34/06/2567" },
-                { date: "25/06/2567" },
-                { date: "26/06/2567" },
-                { date: "27/06/2567" },
-                { date: "28/06/2567" },
-                { date: "29/06/2567" },
-                { date: "30/06/2567" },
-                { date: "31/06/2567" },
-                { date: "32/06/2567" },
-                { date: "33/06/2567" },
-                { date: "34/06/2567" },
-                { date: "25/06/2567" },
-                { date: "26/06/2567" },
-                { date: "27/06/2567" },
-                { date: "28/06/2567" },
-                { date: "29/06/2567" },
-                { date: "30/06/2567" },
-                { date: "31/06/2567" },
-                { date: "32/06/2567" },
-                { date: "33/06/2567" },
-                { date: "34/06/2567" },
-            ],
+            img1: null,
+            img2: null,
+            tableData: [],
             isInfoModalOpen: false,
             user: {},
             currentPage: 1,
             itemsPerPage: 5,
+            selectedItem: null,
         };
     },
     computed: {
@@ -211,27 +119,27 @@ export default {
         },
     },
     methods: {
-        showInfo() {
+        async showInfo() {
             try {
-                axios({
-                    method: "get",
-                    url: ``,
+                const response = await axios.get(`${baseURL}${GETALLIMAGE_MEAPI}`, {
                     headers: {
                         Authorization: "Bearer " + localStorage.getItem("accessToken"),
                     },
-                })
-                    .then((res) => {  
-                        this.user = res.data;
-                        console.log(this.user);
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                    });
-            } catch (error) { }
+                });
+                this.tableData = response.data.map((item) => ({
+                    ...item,
+                    oxiMeterImageUrl: "data:image/jpeg;base64," + item.oxiMeterImage,
+                    bloodPressureMeterImageUrl: "data:image/jpeg;base64," + item.bloodPressureMeterImage,
+                }));
+                // console.log(this.tableData);
+            } catch (error) {
+                console.error(error);
+            }
         },
         showInfoModal(item) {
             this.isInfoModalOpen = true;
-            console.log(item);
+            this.selectedItem = item;
+            // console.log("ข้อมูล item",item);
         },
         hideInfoModal() {
             this.isInfoModalOpen = false;
@@ -246,6 +154,13 @@ export default {
                 this.currentPage++;
             }
         },
+        formatDate(date) {
+            return moment(date).format("DD/MM/YYYY");
+        },
+    },
+
+    mounted() {
+        this.showInfo();
     },
 };
 </script>
