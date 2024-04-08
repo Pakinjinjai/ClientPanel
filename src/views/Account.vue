@@ -22,57 +22,51 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
+import axios from 'axios';
 
-const username = ref("JohnDoe")
-const password = ref("password") 
-const editing = ref(false)
-const newUsername = ref("")
-const newPassword = ref("")
-const confirmPassword = ref("")
+const username = ref("JohnDoe");
+const password = ref("password");
+const editing = ref(false);
+const newUsername = ref("");
+const newPassword = ref("");
+const confirmPassword = ref("");
 
-const baseURL = "https://health-backend-kp6f.onrender.com/api" 
-const UPDATEUSER = '/user-update'
+// เปลี่ยน baseURL ตามที่ต้องการใช้งาน
+const baseURL = "https://health-backend-kp6f.onrender.com/api";
 
 const startEditing = () => {
-  editing.value = true
-}
+  editing.value = true;
+};
 
 const saveChanges = () => {
   if (newPassword.value !== confirmPassword.value) {
-    alert("รหัสผ่านใหม่ไม่ตรงกัน")
-    return
+    alert("รหัสผ่านใหม่ไม่ตรงกัน");
+    return;
   }
 
-  fetch(baseURL + UPDATEUSER, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      username: newUsername.value,
-      password: newPassword.value
-    })
+  // ส่งข้อมูลผ่าน POST request ไปยัง API ของ Client
+  axios.post(baseURL + '/upload-images-me', {
+    username: newUsername.value,
+    password: newPassword.value
   })
   .then(response => {
-    if (!response.ok) {
-      throw new Error('ไม่สามารถบันทึกข้อมูลได้')
-    }
-    alert("บันทึกข้อมูลเรียบร้อยแล้ว")
-    username.value = newUsername.value
-    editing.value = false
+    console.log(response.data);
+    alert("บันทึกข้อมูลเรียบร้อยแล้ว!");
+    editing.value = false;
   })
   .catch(error => {
-    alert(error.message)
-  })
-}
+    console.error(error);
+    alert("เกิดข้อผิดพลาดขณะบันทึกข้อมูล");
+  });
+};
 
 const cancelEditing = () => {
-  editing.value = false
-  newUsername.value = ""
-  newPassword.value = ""
-  confirmPassword.value = ""
-}
+  editing.value = false;
+  newUsername.value = "";
+  newPassword.value = "";
+  confirmPassword.value = "";
+};
 </script>
 
 <style scoped>
