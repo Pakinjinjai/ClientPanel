@@ -19,7 +19,7 @@ const GETALLIMAGE_MEAPI = '/get-all-images-me'
 const UPDATEUSER = '/user-update'
 
 /** 'Authorization': `Bearer Include accessToken in the header'Content-Type': 'application/json' **/ 
-const GETUSERACCOUNT_API = '/get-username-account'
+const GETUSERACCOUNT_API = '/get-username-account-me'
 
 
 export {
