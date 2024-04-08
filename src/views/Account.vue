@@ -31,20 +31,40 @@ const newUsername = ref("")
 const newPassword = ref("")
 const confirmPassword = ref("")
 
+const baseURL = "https://health-backend-kp6f.onrender.com/api" 
+const UPDATEUSER = '/user-update'
+
 const startEditing = () => {
   editing.value = true
 }
 
 const saveChanges = () => {
   if (newPassword.value !== confirmPassword.value) {
-    alert("New passwords do not match.")
+    alert("รหัสผ่านใหม่ไม่ตรงกัน")
     return
   }
 
-  username.value = newUsername.value || username.value
-  password.value = newPassword.value || password.value 
-  alert("Changes saved successfully!")
-  editing.value = false
+  fetch(baseURL + UPDATEUSER, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      username: newUsername.value,
+      password: newPassword.value
+    })
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('ไม่สามารถบันทึกข้อมูลได้')
+    }
+    alert("บันทึกข้อมูลเรียบร้อยแล้ว")
+    username.value = newUsername.value
+    editing.value = false
+  })
+  .catch(error => {
+    alert(error.message)
+  })
 }
 
 const cancelEditing = () => {
