@@ -34,30 +34,36 @@
 
 <script>
 import axios from 'axios';
+import { GETIMAGE_API, baseURL } from '../APIGate';
 
 export default {
     data() {
         return {
+            formData:[],
             image1: null,
-            image2: null
+            image2: null,
         };
     },
     mounted() {
-        // ทำการยิง API เพื่อดึงข้อมูล
-        axios.get('http://localhost:8080/api/get-me-dataHealth', {
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+        this.showImage()
+    },
+    methods:{
+        async showImage() {
+            try{
+                const res = await axios.get(`${baseURL}${GETIMAGE_API}`,{
+                    headers:{
+                        Authorization: 'Bearer ' + localStorage.getItem("accessToken")
+                    },
+                });
+                this.formData = res.data;
+                console.log('ข้อมูลจากAPI',this.formData);
+                this.image1 = 'data:image/jpeg;base64,' + this.formData.bloodPressureMeterImage;
+                this.image2 = 'data:image/jpeg;base64,' + this.formData.oxiMeterImage;
+                // console.log("รูปของ bloodPressure",this.image1,"รูปของ oxiMeter",this.image2);
+            }catch(e){
+                console.log('ปัญหาที่พบเจอ',e);
             }
-        })
-        .then(response => {
-            console.log('Data from API:', response.data); // เพิ่ม console.log เพื่อตรวจสอบข้อมูลที่ได้จาก API
-            // แปลงข้อมูลรูปภาพให้เป็น URL
-            this.image1 = 'data:image/jpeg;base64,' + response.data.oxiMeterImage;
-            this.image2 = 'data:image/jpeg;base64,' + response.data.bloodPressureMeterImage;
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
+        }
     }
 };
 
