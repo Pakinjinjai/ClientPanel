@@ -16,7 +16,7 @@ const GETIMAGE_API = "/get-me-dataHealth";
 const GETALLIMAGE_MEAPI = '/get-all-images-me'
 
 /** 'Authorization': `Bearer Include accessToken in the header'Content-Type': 'application/json' **/ 
-const UPDATEUSER_API = '/user-update'
+const UPDATEUSER = '/user-update'
 
 /** 'Authorization': `Bearer Include accessToken in the header'Content-Type': 'application/json' **/ 
 const GETUSERACCOUNT_API = '/get-username-account'
@@ -28,7 +28,7 @@ export {
     REGISTER_API,
     UPLOADIMAGE_API,
     GETALLIMAGE_MEAPI,
-    UPDATEUSER_API,
+    UPDATEUSER,
     GETIMAGE_API,
     GETUSERACCOUNT_API
 }
