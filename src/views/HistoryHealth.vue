@@ -120,22 +120,27 @@ export default {
     },
     methods: {
         async showInfo() {
-            try {
-                const response = await axios.get(`${baseURL}${GETALLIMAGE_MEAPI}`, {
-                    headers: {
-                        Authorization: "Bearer " + localStorage.getItem("accessToken"),
-                    },
-                });
-                this.tableData = response.data.map((item) => ({
-                    ...item,
-                    oxiMeterImageUrl: "data:image/jpeg;base64," + item.oxiMeterImage,
-                    bloodPressureMeterImageUrl: "data:image/jpeg;base64," + item.bloodPressureMeterImage,
-                }));
-                // console.log(this.tableData);
-            } catch (error) {
-                console.error(error);
-            }
-        },
+    try {
+        const response = await axios.get(`${baseURL}${GETALLIMAGE_MEAPI}`, {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("accessToken"),
+            },
+        });
+        this.tableData = response.data.map((item) => ({
+            ...item,
+            oxiMeterImageUrl: "data:image/jpeg;base64," + item.oxiMeterImage,
+            bloodPressureMeterImageUrl: "data:image/jpeg;base64," + item.bloodPressureMeterImage,
+            updatedAt: moment(item.updatedAt).toDate(), // Convert updatedAt to comparable date
+        }));
+
+        // Sort tableData by updatedAt in descending order (latest first)
+        this.tableData.sort((a, b) => b.updatedAt - a.updatedAt);
+
+    } catch (error) {
+        console.error(error);
+    }
+},
+
         showInfoModal(item) {
             this.isInfoModalOpen = true;
             this.selectedItem = item;
